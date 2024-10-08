@@ -66,4 +66,4 @@ gtest_main.a: gtest-all.o gtest_main.o
 	ar rcs $@ $^
 
 clean:
-	rm -f $(TESTS) gtest.a gtest_main.a *.o *.out main test_detail.json
+	rm -f $(TESTS) gtest.a gtest_main.a *.o *.out main test_detail.json vgcore*

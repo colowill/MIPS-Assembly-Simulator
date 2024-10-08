@@ -43,3 +43,6 @@ results/
 ag_lib/
 compile_commands.json
 .ccls*
+
+# Valgrind
+vgcore*

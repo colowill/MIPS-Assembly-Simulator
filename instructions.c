@@ -16,13 +16,38 @@ unsigned int bit_select(unsigned int num, unsigned int start_bit,
 }
 
 instruction_type determine_instruction_type(uint32_t instruct) {
-    // TODO:
-    return I_TYPE;
+    unsigned int temp = bit_select(instruct, OPCODE_START_BIT, OPCODE_END_BIT);
+    if (temp == 0x00) {
+        return R_TYPE;
+    } else {
+        return I_TYPE;
+    }
 }
 
 fields* create_fields(uint32_t instruct) {
     fields* rv = (fields*)malloc(sizeof(fields));
-    // TODO:
+    r_fields rf1;
+    i_fields if1;
+    
+    if (determine_instruction_type(instruct) == R_TYPE) {
+        uint8_t rs = bit_select(instruct, RS_START_BIT, RS_END_BIT);
+        uint8_t rt = bit_select(instruct, RT_START_BIT, RT_END_BIT);
+        uint8_t rd = bit_select(instruct, RD_START_BIT, RD_END_BIT);
+        uint8_t shamt = bit_select(instruct, SHAMT_START_BIT, SHAMT_END_BIT);
+        rf1.rs = rs;
+        rf1.rt = rt;
+        rf1.rd = rd;
+        rf1.shamt = shamt;
+        rv->r = rf1;
+    } else {
+        uint8_t rs = bit_select(instruct, RS_START_BIT, RS_END_BIT);
+        uint8_t rt = bit_select(instruct, RT_START_BIT, RT_END_BIT);
+        uint16_t immediate = bit_select(instruct, IMMEDIATE_START_BIT, IMMEDIATE_END_BIT);
+        if1.rs = rs;
+        if1.rt = rt;
+        if1.immediate = immediate;
+        rv->i = if1;
+    }
     return rv;
 }
 
@@ -97,3 +122,4 @@ void ori(fields fields, int32_t* registers, uint32_t* pc) {
     i_fields i_fields = fields.i;
     // TODO:
 }
+

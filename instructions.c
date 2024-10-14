@@ -1,5 +1,4 @@
 #include "instructions.h"
-
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -17,7 +16,7 @@ unsigned int bit_select(unsigned int num, unsigned int start_bit,
 
 instruction_type determine_instruction_type(uint32_t instruct) {
     unsigned int temp = bit_select(instruct, OPCODE_START_BIT, OPCODE_END_BIT);
-    if (temp == 0x00) {
+    if (temp == R_TYPE_OPCODE) {
         return R_TYPE;
     } else {
         return I_TYPE;
@@ -52,13 +51,38 @@ fields* create_fields(uint32_t instruct) {
 }
 
 instruction_name determine_instruction_name(uint32_t instruct) {
-    // TODO:
+    int function = bit_select(instruct, FUNCT_START_BIT, FUNCT_END_BIT);
+    int opcode = bit_select(instruct, OPCODE_START_BIT, OPCODE_END_BIT);
+    if (determine_instruction_type(instruct) == R_TYPE) {
+        if (function  == SLL_FUNCT) return SLL;
+        else if (function == SRA_FUNCT) return SRA;
+        else if (function == ADD_FUNCT) return ADD;
+        else if (function == SUB_FUNCT) return SUB;
+        else if (function == AND_FUNCT) return AND;
+        else if (function == OR_FUNCT) return OR;
+        else if (function == NOR_FUNCT) return NOR;
+    } else {
+        if (opcode == ADDI_OPCODE) return ADDI;
+        else if (opcode == ANDI_OPCODE) return ANDI;
+        else if (opcode == ORI_OPCODE) return ORI;
+    }
     return SLL;
 }
 
 instruction* create_instruction(uint32_t instruct) {
     instruction* rv = (instruction*)malloc(sizeof(instruction));
-    // TODO:
+    instruction_name inst = determine_instruction_name(instruct);
+    rv->_fields = *create_fields(instruct); 
+    if (inst == SLL) rv->execute = sll;
+    else if (inst == SRA) rv->execute = sra;
+    else if (inst == ADD) rv->execute = add;
+    else if (inst == SUB) rv->execute = sub;
+    else if (inst == AND) rv->execute = and_op;
+    else if (inst == OR) rv->execute = or_op;
+    else if (inst == NOR) rv->execute = nor;
+    else if (inst == ADDI) rv->execute = addi;
+    else if (inst == ANDI) rv->execute = andi;
+    else if (inst == ORI) rv->execute = ori;
     return rv;
 }
 
@@ -72,54 +96,64 @@ void execute_instruction(instruction* instruct, int32_t* registers,
 // of instructions.h
 
 void sll(fields fields, int32_t* registers, uint32_t* pc) {
-    r_fields r_fields = fields.r;
-    // TODO:
+    r_fields r_fields = fields.r; 
+    registers[r_fields.rd] = registers[r_fields.rt] << r_fields.shamt;
+    *pc+=WORD_SIZE;
 }
 
 void sra(fields fields, int32_t* registers, uint32_t* pc) {
     r_fields r_fields = fields.r;
-    // TODO:
+    registers[r_fields.rd] = registers[r_fields.rt] >> r_fields.shamt;
+    *pc+=WORD_SIZE;
 }
 
 void add(fields fields, int32_t* registers, uint32_t* pc) {
     r_fields r_fields = fields.r;
-    // TODO:
+    registers[r_fields.rd] = registers[r_fields.rt] + registers[r_fields.rs];
+    *pc+=WORD_SIZE;
 }
 
 void sub(fields fields, int32_t* registers, uint32_t* pc) {
     r_fields r_fields = fields.r;
-    // TODO:
+    registers[r_fields.rd] = registers[r_fields.rs] - registers[r_fields.rt];
+    *pc+=WORD_SIZE;
 }
 
 // Can't name this "and" because "and" is a reserved keyword
 void and_op(fields fields, int32_t* registers, uint32_t* pc) {
     r_fields r_fields = fields.r;
-    // TODO:
+    registers[r_fields.rd] = registers[r_fields.rt] & registers[r_fields.rs];
+    *pc+=WORD_SIZE;
 }
 
 // Can't name this "or" because "or" is a reserved keyword
 void or_op(fields fields, int32_t* registers, uint32_t* pc) {
     r_fields r_fields = fields.r;
-    // TODO:
+    registers[r_fields.rd] = registers[r_fields.rt] | registers[r_fields.rs];
+	*pc+=WORD_SIZE;
 }
 
 void nor(fields fields, int32_t* registers, uint32_t* pc) {
     r_fields r_fields = fields.r;
-    // TODO:
+    registers[r_fields.rd] = ~(registers[r_fields.rt] | registers[r_fields.rs]);
+	*pc+=WORD_SIZE;
 }
 
 void addi(fields fields, int32_t* registers, uint32_t* pc) {
     i_fields i_fields = fields.i;
-    // TODO:
+    registers[i_fields.rt] = registers[i_fields.rs] + i_fields.immediate;
+    *pc+=WORD_SIZE;
 }
 
 void andi(fields fields, int32_t* registers, uint32_t* pc) {
     i_fields i_fields = fields.i;
-    // TODO:
+    registers[i_fields.rt] = registers[i_fields.rs] & i_fields.immediate;
+    *pc+=WORD_SIZE;
 }
 
 void ori(fields fields, int32_t* registers, uint32_t* pc) {
     i_fields i_fields = fields.i;
-    // TODO:
+    registers[i_fields.rt] = registers[i_fields.rs] | i_fields.immediate;
+    *pc+=WORD_SIZE;
 }
 

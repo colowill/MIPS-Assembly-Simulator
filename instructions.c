@@ -49,6 +49,7 @@ fields* create_fields(uint32_t instruct) {
         if1.immediate = immediate;
         rv->i = if1;
     }
+    free(rv);
     return rv;
 }
 
